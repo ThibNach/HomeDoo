@@ -10,6 +10,9 @@ build/
 # Variables d'environnement
 .env
 
+# Poetry files
+poetry.toml
+
 # PostgreSQL
 *.sql.bak
 

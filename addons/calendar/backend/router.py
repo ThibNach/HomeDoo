@@ -1,7 +1,7 @@
 from flask import Blueprint
 
-router = Blueprint("Calendar", __name__)
+router = Blueprint("calendar", __name__)
 
-@router.route("/Calendar/hello")
+@router.route("/calendar/hello")
 def hello():
     return "Hello World!"

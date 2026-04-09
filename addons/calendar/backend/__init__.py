@@ -1,4 +1,7 @@
+from .router import router
+from .database import init_db
+
 
 def setup(app):
-    from .router import router
     app.register_blueprint(router)
+    init_db()

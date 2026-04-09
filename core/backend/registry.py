@@ -1,5 +1,6 @@
 import importlib
 import json
+import sys
 from pathlib import Path
 
 ADDONSDIR = "addons"
@@ -7,6 +8,7 @@ MODULEFILE = "module.json"
 BACKENDDIR = "backend"
 
 project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 def fetch_addons():
     path = project_root / ADDONSDIR
