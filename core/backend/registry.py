@@ -2,9 +2,9 @@ import importlib
 import json
 from pathlib import Path
 
-ADDONSDIR = "AddOns"
+ADDONSDIR = "addons"
 MODULEFILE = "module.json"
-BACKENDDIR = "Backend"
+BACKENDDIR = "backend"
 
 project_root = Path(__file__).parent.parent.parent
 
