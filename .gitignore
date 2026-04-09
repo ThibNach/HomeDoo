@@ -12,7 +12,6 @@ poetry.lock
 
 # Variables d'environnement
 .env
-.env.*
 
 # PostgreSQL
 *.sql.bak
