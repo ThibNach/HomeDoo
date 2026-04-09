@@ -6,8 +6,10 @@ ADDONSDIR = "AddOns"
 MODULEFILE = "module.json"
 BACKENDDIR = "Backend"
 
+project_root = Path(__file__).parent.parent.parent
+
 def fetch_addons():
-    path = Path(__file__).parent.parent.parent / ADDONSDIR
+    path = project_root / ADDONSDIR
     modules = []
     for directory in Path.iterdir(path):
         if directory.is_dir():
