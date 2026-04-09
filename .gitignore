@@ -7,9 +7,6 @@ dist/
 build/
 *.egg-info/
 
-# Poetry
-poetry.lock
-
 # Variables d'environnement
 .env
 
