@@ -56,7 +56,6 @@ def create_tables_if_not_exist(schema_path):
             sql.Identifier(table["name"]),
             sql.SQL(',').join(columns)
 )
-        print(query)
         cursor.execute(query)
 
     cursor.close()
