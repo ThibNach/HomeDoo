@@ -1,0 +1,14 @@
+{
+  "tables": [
+    {
+      "name": "calendar_entries",
+      "columns": [
+        { "name": "id", "type": "SERIAL", "constraints": "PRIMARY KEY" },
+        { "name": "title", "type": "VARCHAR(255)", "constraints": "NOT NULL" },
+        { "name": "start_datetime", "type": "TIMESTAMP", "constraints": "NOT NULL" },
+        { "name": "end_datetime", "type": "TIMESTAMP", "constraints": "" },
+        { "name": "all_day", "type": "BOOLEAN", "constraints": "DEFAULT FALSE" }
+      ]
+    }
+  ]
+}

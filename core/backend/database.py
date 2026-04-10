@@ -1,4 +1,6 @@
+import json
 import psycopg2
+from pathlib import Path
 
 from config import config
 
@@ -27,3 +29,27 @@ def create_db_if_not_exists():
 
     cursor.close()
     connection.close()
+
+
+def create_tables_if_not_exist(schema_path):
+    if Path(schema_path).suffix != ".json":
+        raise ValueError("tried to create tables from bad extension file")
+    
+    schema = json.load(open(schema_path))
+
+    connection = connect_db()
+    connection.autocommit= True
+    cursor = connection.cursor()
+    
+    for table in schema["tables"]:
+        columns = [' '.join(column.values()) for column in table["columns"]]
+        query = f"CREATE TABLE IF NOT EXISTS {table["name"]} ({','.join(columns)})"
+    
+        cursor.execute(query)
+
+    cursor.close()
+    connection.close()
+        
+        
+    
+    
