@@ -31,7 +31,9 @@ def register_addons(app):
         parts = Path(module / BACKENDDIR).parts
         start_index = parts.index(ADDONSDIR)
         module_name = '.'.join(parts[start_index:])
+        
+        loaded_addons.append(load_addons(module))
+        
         importlib.import_module(module_name).setup(app)
 
-        loaded_addons.append(load_addons(module))
     return loaded_addons
