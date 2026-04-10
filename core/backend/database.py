@@ -1,6 +1,8 @@
 import json
 import psycopg2
+
 from pathlib import Path
+from psycopg2 import sql
 
 from config import config
 
@@ -20,12 +22,12 @@ def create_db_if_not_exists():
     connection.autocommit = True
     cursor = connection.cursor()
 
-    db_exist_query = f"SELECT 1 FROM pg_database WHERE datname = '{config.DB_NAME}'"
-    cursor.execute(db_exist_query)
+    cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s",(config.DB_NAME,))
 
     if not cursor.fetchone():
-        create_db_query = f"CREATE DATABASE {config.DB_NAME}"
-        cursor.execute(create_db_query)
+        cursor.execute(sql
+                       .SQL("CREATE DATABASE {}")
+                       .format(sql.Identifier(config.DB_NAME)))
 
     cursor.close()
     connection.close()
@@ -42,9 +44,19 @@ def create_tables_if_not_exist(schema_path):
     cursor = connection.cursor()
     
     for table in schema["tables"]:
-        columns = [' '.join(column.values()) for column in table["columns"]]
-        query = f"CREATE TABLE IF NOT EXISTS {table["name"]} ({','.join(columns)})"
-    
+        columns = [
+            sql.SQL("{} {}").format(
+                sql.Identifier(column["name"]),
+                sql.SQL(f"{column['type']} {column['constraints']}")
+            )
+            for column in table["columns"]
+        ]
+
+        query = sql.SQL("CREATE TABLE IF NOT EXISTS {} ({})").format(
+            sql.Identifier(table["name"]),
+            sql.SQL(',').join(columns)
+)
+        print(query)
         cursor.execute(query)
 
     cursor.close()
