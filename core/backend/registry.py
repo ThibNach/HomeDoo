@@ -2,6 +2,7 @@ import importlib
 import json
 import sys
 from pathlib import Path
+from database import create_tables_if_not_exist
 
 ADDONSDIR = "addons"
 MODULEFILE = "module.json"
@@ -32,7 +33,10 @@ def register_addons(app):
         start_index = parts.index(ADDONSDIR)
         module_name = '.'.join(parts[start_index:])
         
-        loaded_addons.append(load_addons(module))
+        if module["db_schema_path"]:
+            create_tables_if_not_exist(Path( (module - MODULEFILE) / module["db_schema_path"]))
+        
+        loaded_addons.append(load_addons(module))   
         
         importlib.import_module(module_name).setup(app)
 
