@@ -75,6 +75,30 @@ def fetch_all(table_name, params=None):
         raise (RuntimeError(f"Fetch failed on {table_name} : {e}"))
 
 
+def insert_item(table_name,table_data:dict):
+    fields = sql.SQL(', ').join(sql.Identifier(data) for data in table_data.keys())
+    placeholders = sql.SQL(', ').join(sql.Placeholder() * len(table_data))
+    values = list(table_data.values())
+    
+    
+    query = sql.SQL("INSERT INTO {} ({}) VALUES ({})").format(
+        sql.Identifier(table_name),
+        fields,
+        placeholders        
+    )    
+        
+    with connect_db() as connection:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(query,values)
+            connection.commit()
+        except psycopg2.Error as e:
+            connection.rollback()
+            raise (RuntimeError(f"Insertion failed on {table_name} : {e}"))
+    
+    
+    
+
 def _execute_query(query):
     try:
         with connect_db() as connection:
@@ -83,3 +107,4 @@ def _execute_query(query):
                 return cursor.fetchall()
     except psycopg2.Error as e:
         raise (RuntimeError(f"Query execution failed on {query} : {e} "))
+
