@@ -1,7 +1,7 @@
 {
   "tables": [
     {
-      "name": "calendar_entries",
+      "name": "entries",
       "columns": [
         { "name": "id", "type": "SERIAL", "constraints": "PRIMARY KEY" },
         { "name": "title", "type": "VARCHAR(255)", "constraints": "NOT NULL" },

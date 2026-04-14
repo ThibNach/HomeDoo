@@ -36,7 +36,7 @@ def create_db_if_not_exists():
     connection.close()
 
 
-def create_tables_if_not_exist(schema_path):
+def create_tables_if_not_exist(schema_path, module_name):
     if Path(schema_path).suffix != ".json":
         raise ValueError("tried to create tables from bad extension file")
     
@@ -56,7 +56,7 @@ def create_tables_if_not_exist(schema_path):
             ]
         
             query = sql.SQL("CREATE TABLE IF NOT EXISTS {} ({})").format(
-                sql.Identifier(table["name"]),
+                sql.Identifier(f"{module_name}_{table["name"]}"),
                 sql.SQL(',').join(columns)
 )       
             
