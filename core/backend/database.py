@@ -3,11 +3,12 @@ import psycopg2
 
 from pathlib import Path
 from psycopg2 import sql, OperationalError
+from psycopg2.sql import Identifier
 
 from config import config
 
 
-def connect_db(db_name = config.DB_NAME):
+def connect_db(db_name=config.DB_NAME):
     try:
         return psycopg2.connect(
             host=config.DB_HOST,
@@ -21,55 +22,64 @@ def connect_db(db_name = config.DB_NAME):
 
 
 def create_db_if_not_exists():
-    connection = connect_db("postgres")
+    connection  = connect_db("postgres") #Cannot use with statement because create db can not be a transaction
     connection.autocommit = True
-    cursor = connection.cursor()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (config.DB_NAME,))
 
-    cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s",(config.DB_NAME,))
-
-    if not cursor.fetchone():
-        cursor.execute(sql
-                       .SQL("CREATE DATABASE {}")
-                       .format(sql.Identifier(config.DB_NAME)))
-
-    cursor.close()
+        if not cursor.fetchone():
+            cursor.execute(sql
+                           .SQL("CREATE DATABASE {}")
+                           .format(sql.Identifier(config.DB_NAME)))
+            
     connection.close()
 
 
 def create_tables_if_not_exist(schema_path, module_name):
     if Path(schema_path).suffix != ".json":
         raise ValueError("tried to create tables from bad extension file")
-    
-    schema = json.load(open(schema_path))
 
-    connection = connect_db()
-    cursor = connection.cursor()
-    
+    with(open(schema_path)) as schema_file:
+        schema = json.load(schema_file)
+        with connect_db() as connection:
+            with connection.cursor() as cursor:
+                try:
+                    for table in schema["tables"]:
+                        columns = [
+                            sql.SQL("{} {}").format(
+                                sql.Identifier(column["name"]),
+                                sql.SQL(f"{column['type']} {column['constraints']}")
+                            )
+                            for column in table["columns"]
+                        ]
+
+                        query = sql.SQL("CREATE TABLE IF NOT EXISTS {} ({})").format(
+                            sql.Identifier(f"{module_name.lower()}_{table["name"].lower()}"),
+                            sql.SQL(',').join(columns)
+                        )
+
+                        cursor.execute(query)
+                    connection.commit()
+                except Exception as e:
+                    connection.rollback()
+                    raise Exception(f"Error : {e}")
+
+
+def fetch_all(table_name, params=None):
+    query = sql.SQL("SELECT * FROM {}").format(
+        sql.Identifier(table_name)
+    )
     try:
-        for table in schema["tables"]:
-            columns = [
-                sql.SQL("{} {}").format(
-                    sql.Identifier(column["name"]),
-                    sql.SQL(f"{column['type']} {column['constraints']}")
-                )
-                for column in table["columns"]
-            ]
-        
-            query = sql.SQL("CREATE TABLE IF NOT EXISTS {} ({})").format(
-                sql.Identifier(f"{module_name}_{table["name"]}"),
-                sql.SQL(',').join(columns)
-)       
-            
-            cursor.execute(query)
-        
-        connection.commit()
-    except Exception as e:
-        connection.rollback()
-        print(f"Error : {e}")
-    finally:
-        cursor.close()
-        connection.close()
-        
-        
-    
-    
+        return _execute_query(query)
+    except psycopg2.Error as e:
+        raise (RuntimeError(f"Fetch failed on {table_name} : {e}"))
+
+
+def _execute_query(query):
+    try:
+        with connect_db() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query)
+                return cursor.fetchall()
+    except psycopg2.Error as e:
+        raise (RuntimeError(f"Query execution failed on {query} : {e} "))

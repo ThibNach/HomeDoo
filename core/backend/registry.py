@@ -29,7 +29,7 @@ def register_addons(app):
             with open( module / MODULEFILE) as file: #with statement handle the file close
                 manifest = json.load(file)
                 if manifest.get("db_schema_path"):
-                    create_tables_if_not_exist(module / manifest["db_schema_path"], module.parts[-1])
+                    create_tables_if_not_exist(module / manifest["db_schema_path"], manifest["name"])
                 
                 loaded_addons.append(file)
 
