@@ -1,7 +1,9 @@
 import importlib
 import json
 import sys
+
 from pathlib import Path
+
 from database import create_tables_if_not_exist
 
 ADDONSDIR = "addons"
@@ -31,7 +33,7 @@ def register_addons(app):
                 if manifest.get("db_schema_path"):
                     create_tables_if_not_exist(module / manifest["db_schema_path"], manifest["name"])
                 
-                loaded_addons.append(file)
+                loaded_addons.append(manifest)
 
                 parts = Path(module / BACKENDDIR).parts
                 module_name = '.'.join(parts[parts.index(ADDONSDIR):])
@@ -42,3 +44,5 @@ def register_addons(app):
             raise ValueError(f"invalid Json file : {e}")
                     
     return loaded_addons
+
+
