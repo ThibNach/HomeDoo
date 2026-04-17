@@ -11,10 +11,9 @@ async function loadModules() {
         link.textContent = module.name;
         link.addEventListener("click", async (e) => {
             e.preventDefault();
-            console.log("Click détecté sur", module.name);
+            /** @type {{ render: () => Promise<void> }} */
             const module_js = await import(`${API_URL}/addons/${module.name.toLowerCase()}/js/${module.name.toLowerCase()}.js`);
-            console.log("module importé", module_js);
-            module_js.render();
+            await module_js.render();
         })
         nav.appendChild(link);
     });
