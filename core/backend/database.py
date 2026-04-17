@@ -5,17 +5,17 @@ from pathlib import Path
 from psycopg2 import sql, OperationalError
 from psycopg2.sql import Identifier
 
-from config import config
+from config import get_config
 
 
-def connect_db(db_name=config.DB_NAME):
+def connect_db(db_name=get_config().DB_NAME):
     try:
         return psycopg2.connect(
-            host=config.DB_HOST,
-            port=config.DB_PORT,
+            host=get_config().DB_HOST,
+            port=get_config().DB_PORT,
             dbname=db_name,
-            user=config.DB_USER,
-            password=config.DB_PASSWORD
+            user=get_config().DB_USER,
+            password=get_config().DB_PASSWORD
         )
     except OperationalError as e:
         raise ConnectionError(f"Failed to connect to database {db_name} : {e}")
@@ -25,12 +25,12 @@ def create_db_if_not_exists():
     connection  = connect_db("postgres") #Cannot use with statement because create db can not be a transaction
     connection.autocommit = True
     with connection.cursor() as cursor:
-        cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (config.DB_NAME,))
+        cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (get_config().DB_NAME,))
 
         if not cursor.fetchone():
             cursor.execute(sql
                            .SQL("CREATE DATABASE {}")
-                           .format(sql.Identifier(config.DB_NAME)))
+                           .format(sql.Identifier(get_config().DB_NAME)))
             
     connection.close()
 
