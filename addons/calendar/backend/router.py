@@ -4,10 +4,6 @@ from core.backend import fetch_all, insert_item
 
 router = Blueprint("calendar", __name__)
 
-@router.route("/calendar/hello")
-def hello():
-    return "Hello World!"
-
 
 @router.route("/calendar/entries", methods=["GET"])
 def get_calendar_entries():

@@ -9,6 +9,13 @@ async function loadModules() {
         const link = document.createElement("a");
         link.href = `#${module.name}`;
         link.textContent = module.name;
+        link.addEventListener("click", async (e) => {
+            e.preventDefault();
+            console.log("Click détecté sur", module.name);
+            const module_js = await import(`${API_URL}/addons/${module.name.toLowerCase()}/js/${module.name.toLowerCase()}.js`);
+            console.log("module importé", module_js);
+            module_js.render();
+        })
         nav.appendChild(link);
     });
 }

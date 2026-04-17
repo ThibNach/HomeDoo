@@ -1,6 +1,7 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify,send_from_directory
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
+from pathlib import Path
 
 from registry import register_addons
 from config import config
@@ -18,6 +19,12 @@ def handle_error(e):
 @app.route("/modules", methods=["GET"])
 def get_modules():
     return jsonify(loaded_addons)
+
+ADDONS_DIR = Path(__file__).parent.parent.parent / "addons"
+
+@app.route("/addons/<module>/<path:filename>")
+def serve_addon_file(module, filename):
+    return send_from_directory(ADDONS_DIR / module / "frontend", filename)
 
 
 if __name__ == "__main__":
