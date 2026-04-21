@@ -12,7 +12,7 @@ def get_calendar_entries():
 
 @router.route("/calendar/entries", methods=["POST"])
 def add_calendar_entry():
-    data = request.get_json();
+    data = request.get_json()
     if not data.get("title") or not data.get("start_datetime"):
         return jsonify({"success": False, "error": "Missing required fields"}), 400    
     insert_item("calendar_entries", data)

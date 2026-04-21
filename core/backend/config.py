@@ -14,7 +14,7 @@ def _require_env_variable(variable :str)-> str:
     return value
 
 
-@dataclass
+@dataclass()
 class Config:
     _instance = None
     
