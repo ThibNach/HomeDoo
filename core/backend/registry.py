@@ -4,7 +4,7 @@ import sys
 
 from pathlib import Path
 
-from database import create_tables_if_not_exist
+from database import Database
 
 ADDONSDIR = "addons"
 MODULEFILE = "module.json"
@@ -61,7 +61,7 @@ def register_addons(app):
 
         manifest = gathered_addons.get(addon)
         if manifest.get("db_schema_path"):
-            create_tables_if_not_exist(manifest["path"] / manifest["db_schema_path"], manifest["name"])
+            Database().create_tables_if_not_exist(manifest["path"] / manifest["db_schema_path"], manifest["name"])
 
         loaded_addons.append(manifest)
 

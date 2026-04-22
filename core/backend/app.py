@@ -4,8 +4,8 @@ from werkzeug.exceptions import HTTPException
 from pathlib import Path
 
 from registry import register_addons
-from config import get_config
-from database import create_db_if_not_exists
+from config import Config
+from database import Database
 
 app = Flask(__name__)
 CORS(app)
@@ -28,7 +28,7 @@ def serve_addon_file(module, filename):
 
 
 if __name__ == "__main__":
-    create_db_if_not_exists()
+    Database().create_db_if_not_exists()
     global loaded_addons
     loaded_addons = register_addons(app)
-    app.run(host="0.0.0.0", port=int(get_config().FLASK_PORT), debug=True)
+    app.run(host="0.0.0.0", port=int(Config().FLASK_PORT), debug=True)

@@ -1,2 +1,2 @@
 from .registry import register_addons
-from .database import fetch_all, insert_item
+from .database import Database
