@@ -1,2 +1,2 @@
-from .registry import register_addons
-from .database import Database
+from .registry import Registry
+from .database import database

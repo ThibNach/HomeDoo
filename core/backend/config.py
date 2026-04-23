@@ -1,8 +1,6 @@
 from dotenv import load_dotenv
-from dataclasses import dataclass
 import os
 
-from utils import singleton
 
 env_file = load_dotenv()
 
@@ -15,11 +13,9 @@ def _require_env_variable(variable :str)-> str:
         raise EnvironmentError(f"missing required environment variable : {variable}")
     return value
 
-@singleton
 class Config:
     
-    def __init__(self):
-        
+    def __init__(self):     
         self.FLASK_PORT : str = _require_env_variable("FLASK_PORT")
         self.DB_NAME :str = _require_env_variable("DB_NAME")
         self.DB_HOST :str = _require_env_variable("DB_HOST")
@@ -27,3 +23,5 @@ class Config:
         self.DB_USER :str = _require_env_variable("DB_USER")
         self.DB_PASSWORD :str = _require_env_variable("DB_PASSWORD")
 
+
+config = Config()

@@ -3,13 +3,10 @@ import psycopg2
 
 from pathlib import Path
 from psycopg2 import sql, OperationalError
-from psycopg2.sql import Identifier
 
-from config import Config
-from utils import singleton
+from config import config
 
 
-@singleton
 class Database:
     _instance = None
 
@@ -49,12 +46,12 @@ class Database:
         connection  = self._connect("postgres") #Cannot use with statement because create db can not be a transaction
         connection.autocommit = True
         with connection.cursor() as cursor:
-            cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (Config().DB_NAME,))
+            cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (config.DB_NAME,))
         
             if not cursor.fetchone():
                 cursor.execute(sql
                                .SQL("CREATE DATABASE {}")
-                               .format(sql.Identifier(Config().DB_NAME)))
+                               .format(sql.Identifier(config.DB_NAME)))
 
             connection.close()
 
@@ -89,7 +86,6 @@ class Database:
                         raise Exception(f"Error : {e}")
 
     def _connect(self, db_name=None):
-        config = Config()
         try:
             return psycopg2.connect(
                 host=config.DB_HOST,
@@ -111,3 +107,5 @@ class Database:
         except psycopg2.Error as e:
             raise (RuntimeError(f"Query execution failed on {query} : {e} "))
 
+
+database = Database()

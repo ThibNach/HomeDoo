@@ -3,9 +3,9 @@ from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 from pathlib import Path
 
-from registry import register_addons
-from config import Config
-from database import Database
+from registry import Registry
+from config import config
+from database import database
 
 app = Flask(__name__)
 CORS(app)
@@ -28,7 +28,7 @@ def serve_addon_file(module, filename):
 
 
 if __name__ == "__main__":
-    Database().create_db_if_not_exists()
+    database.create_db_if_not_exists()
     global loaded_addons
-    loaded_addons = register_addons(app)
-    app.run(host="0.0.0.0", port=int(Config().FLASK_PORT), debug=True)
+    loaded_addons = Registry().register_addons(app)
+    app.run(host="0.0.0.0", port=int(config.FLASK_PORT), debug=True)
