@@ -1,25 +1,25 @@
-from dulwich.porcelain import status
-
 from database import database
 
+MODULES_TABLE_NAME = "core_installed_modules"
 
-class Repository:
+
+class ModulesRepository:
 
     def get_all_installed(self):
-        return database.fetch_all("core_installed_modules")
+        return database.fetch_all(MODULES_TABLE_NAME)
 
     def get_by_name(self, name):
-        return database.fetch_where({"name": name})
+        return database.fetch_where(MODULES_TABLE_NAME, {"name": name})
 
     def add_module(self, name, version, source_url, status="installed"):
         data = {"name": name, "version": version, "source_url": source_url, "status": status}
-        return database.insert_item("core_installed_modules", data)
+        return database.insert_item(MODULES_TABLE_NAME, data)
 
-    def update_status(self):
-        pass
+    def update_status(self, name, new_status):
+        return database.update_item(MODULES_TABLE_NAME, {"status": new_status}, {"name": name})
 
-    def remove_module(self):
-        pass
+    def remove_module(self, conditions):
+        return database.delete_item(MODULES_TABLE_NAME, conditions)
 
 
-repository = Repository()
+repository = ModulesRepository()
