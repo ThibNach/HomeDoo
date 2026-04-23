@@ -18,7 +18,10 @@ def handle_error(e):
 
 @app.route("/modules", methods=["GET"])
 def get_modules():
-    return jsonify(loaded_addons)
+    return jsonify([
+        {k: v for k, v in m.items() if k != "path"}
+        for m in loaded_addons
+    ])
 
 ADDONS_DIR = Path(__file__).parent.parent.parent / "addons"
 

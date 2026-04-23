@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from database import database
+from modules_repository import modules_repository
 from utils import singleton
 
 ADDONS_DIR = "addons"
@@ -61,14 +62,15 @@ class Registry:
         gathered_addons = self.fetch_addons(project_root / CORE_ADDONS_DIR)
         gathered_addons.update(self.fetch_addons(project_root / ADDONS_DIR))
         sorted_addons = self.sort_by_dependencies(gathered_addons)
+        installed_addons_names = [module.get("name") for module in modules_repository.get_all_installed()]
         for addon in sorted_addons:
-    
             manifest = gathered_addons.get(addon)
+            if addon not in installed_addons_names and not manifest.get("core_module"):
+                continue
             if manifest.get("db_schema_path"):
                 database.create_tables_if_not_exist(manifest["path"] / manifest["db_schema_path"], manifest["name"])
     
             loaded_addons.append(manifest)
-    
             parts = Path(manifest.get("path") / BACKEND_DIR).parts
             start = parts.index(CORE_ADDONS_DIR.split('/')[0]) if manifest.get("core_module") else parts.index(ADDONS_DIR)
             module_name = '.'.join(parts[start:])

@@ -22,4 +22,4 @@ class ModulesRepository:
         return database.delete_item(MODULES_TABLE_NAME, conditions)
 
 
-repository = ModulesRepository()
+modules_repository = ModulesRepository()
