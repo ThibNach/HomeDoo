@@ -8,6 +8,7 @@ from database import database
 from utils import singleton
 
 ADDONS_DIR = "addons"
+CORE_ADDONS_DIR = "core/addons"
 MODULE_FILE = "module.json"
 BACKEND_DIR = "backend"
 
@@ -17,10 +18,10 @@ sys.path.insert(0, str(project_root))
 @singleton
 class Registry:
 
-    def fetch_addons(self):
-        path = project_root / ADDONS_DIR
+    def fetch_addons(self, path):
+
         modules = {}
-        for directory in Path.iterdir(path):
+        for directory in Path.iterdir(project_root / path):
             if directory.is_dir():
                 manifest = directory / MODULE_FILE
                 if manifest.exists():
@@ -57,7 +58,8 @@ class Registry:
 
     def register_addons(self, app):
         loaded_addons = []
-        gathered_addons = self.fetch_addons()
+        gathered_addons = self.fetch_addons(project_root / CORE_ADDONS_DIR)
+        gathered_addons.update(self.fetch_addons(project_root / ADDONS_DIR))
         sorted_addons = self.sort_by_dependencies(gathered_addons)
         for addon in sorted_addons:
     
@@ -68,7 +70,8 @@ class Registry:
             loaded_addons.append(manifest)
     
             parts = Path(manifest.get("path") / BACKEND_DIR).parts
-            module_name = '.'.join(parts[parts.index(ADDONS_DIR):])
+            start = parts.index(CORE_ADDONS_DIR.split('/')[0]) if manifest.get("core_module") else parts.index(ADDONS_DIR)
+            module_name = '.'.join(parts[start:])
             importlib.import_module(module_name).setup(app)
     
         return loaded_addons

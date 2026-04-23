@@ -1,8 +1,8 @@
 {
   "name" : "Auth",
-  "enabled" : true,
+  "core_module": true,
+  "version" : "1.0.0",
   "db_schema_path" : "./backend/tables_schema.json",
   "frontend_path" : ".frontend/js/auth.js",
-  "dependencies" :[],
-  "core_module": true
+  "dependencies" :[]
 }
