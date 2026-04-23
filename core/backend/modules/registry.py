@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from database import database
-from modules_repository import modules_repository
+from .repository import modules_repository
 from utils import singleton
 
 ADDONS_DIR = "addons"
@@ -13,7 +13,7 @@ CORE_ADDONS_DIR = "core/addons"
 MODULE_FILE = "module.json"
 BACKEND_DIR = "backend"
 
-project_root = Path(__file__).parent.parent.parent
+project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 @singleton

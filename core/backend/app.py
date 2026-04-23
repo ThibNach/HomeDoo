@@ -3,7 +3,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 from pathlib import Path
 
-from registry import Registry
+from modules import Registry
 from config import config
 from database import database
 
@@ -32,7 +32,7 @@ def serve_addon_file(module, filename):
 
 if __name__ == "__main__":
     database.create_db_if_not_exists()
-    database.create_tables_if_not_exist(Path(__file__).parent / "db_schema.json","core")
+    database.create_tables_if_not_exist(Path(__file__).parent / "database/schema.json","core")
     global loaded_addons
     loaded_addons = Registry().register_addons(app)
     app.run(host="0.0.0.0", port=int(config.FLASK_PORT), debug=True)
