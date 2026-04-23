@@ -1,0 +1,15 @@
+{
+  "tables": [
+    {
+      "name": "installed_modules",
+      "columns": [
+        { "name": "id", "type": "SERIAL", "constraints": "PRIMARY KEY" },
+        { "name": "name", "type": "VARCHAR(100)", "constraints": "NOT NULL UNIQUE" },
+        { "name": "version", "type": "VARCHAR(15)", "constraints": "NOT NULL" },
+        { "name": "status", "type": "VARCHAR(20)", "constraints": "NOT NULL CHECK (status IN ('installed', 'enabled', 'disabled'))" },
+        { "name": "installed_at", "type": "TIMESTAMP", "constraints": "DEFAULT CURRENT_TIMESTAMP" },
+        { "name": "source_url", "type": "VARCHAR(255)", "constraints": "NOT NULL" }
+      ]
+    }
+  ]
+}

@@ -14,10 +14,8 @@ class Database:
         query = sql.SQL("SELECT * FROM {}").format(
             sql.Identifier(table_name)
         )
-        try:
-            return self._execute_query(query)
-        except psycopg2.Error as e:
-            raise (RuntimeError(f"Fetch failed on {table_name} : {e}"))
+        return self._execute_query(query)
+
 
     def fetch_where(self, table_name, params=None):
         conditions = sql.SQL(' AND ').join(
@@ -31,10 +29,7 @@ class Database:
             sql.Identifier(table_name),
             conditions
         )
-        try:
-            return self._execute_query(query, values)
-        except psycopg2.Error as e:
-            raise (RuntimeError(f"Fetch failed on {table_name} : {e}"))
+        return self._execute_query(query, values)
 
     def insert_item(self, table_name, table_data: dict):
         fields = sql.SQL(', ').join(sql.Identifier(data) for data in table_data.keys())
@@ -47,14 +42,42 @@ class Database:
             placeholders
         )
 
-        with self._connect() as connection:
-            try:
-                with connection.cursor() as cursor:
-                    cursor.execute(query, values)
-                connection.commit()
-            except psycopg2.Error as e:
-                connection.rollback()
-                raise (RuntimeError(f"Insertion failed on {table_name} : {e}"))
+        self._execute_command(query, values)
+
+    def update_item(self, table_name, updates: dict, conditions: dict):
+        update = sql.SQL(', ').join(
+            sql.SQL("{} = {}").format(
+                sql.Identifier(field),
+                sql.Placeholder())
+            for field in updates.keys())
+        update_values = list(updates.values())
+
+        where = sql.SQL(' AND ').join(
+            sql.SQL("{} = {}").format(sql.Identifier(key), sql.Placeholder())
+            for key in conditions.keys())
+        where_values = list(conditions.values())
+
+        query = sql.SQL("UPDATE {} SET {} WHERE {}").format(
+            sql.Identifier(table_name),
+            update,
+            where
+        )
+        self._execute_command(query, update_values + where_values)
+
+    def delete_item(self, table_name, conditions: dict):
+        where = sql.SQL(' AND ').join(
+            sql.SQL("{} = {}").format(
+                sql.Identifier(key)            ,
+                sql.Placeholder())
+                for key in conditions.keys() )
+        values = list(conditions.values())
+            
+        query = sql.SQL("DELETE FROM {} WHERE {}").format(
+            sql.Identifier(table_name),
+            where
+        )
+        
+        self._execute_command(query, values)
 
     def create_db_if_not_exists(self):
         connection = self._connect("postgres")  # Cannot use with statement because create db can not be a transaction
@@ -106,7 +129,7 @@ class Database:
                 dbname=db_name if db_name is not None else config.DB_NAME,
                 user=config.DB_USER,
                 password=config.DB_PASSWORD,
-                cursor_factory = RealDictCursor
+                cursor_factory=RealDictCursor
             )
         except OperationalError as e:
             raise ConnectionError(f"Failed to connect to database {db_name} : {e}")
@@ -119,6 +142,16 @@ class Database:
                     return cursor.fetchall()
         except psycopg2.Error as e:
             raise (RuntimeError(f"Query execution failed on {query} : {e} "))
+
+    def _execute_command(self, query, values=None):
+        with self._connect() as connection:
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(query, values)
+                connection.commit()
+            except psycopg2.Error as e:
+                connection.rollback()
+                raise (RuntimeError(f"Command execution failed on {query} : {e}"))
 
 
 database = Database()
