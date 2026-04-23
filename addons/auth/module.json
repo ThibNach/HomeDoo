@@ -1,2 +1,7 @@
 {
+  "name" : "Auth",
+  "enabled" : true,
+  "db_schema_path" : "./backend/tables_schema.json",
+  "frontend_path" : ".frontend/js/auth.js",
+  "dependencies" :[]
 }
