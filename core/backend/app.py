@@ -10,6 +10,9 @@ from database import database
 app = Flask(__name__)
 CORS(app)
 
+ADDONS_DIR = Path(__file__).parent.parent.parent / "addons"
+CORE_ADDONS_DIR = Path(__file__).parent.parent / "addons"
+
 @app.errorhandler(Exception)
 def handle_error(e):
     code = e.code if isinstance(e, HTTPException) else 500
@@ -23,10 +26,11 @@ def get_modules():
         for m in loaded_addons
     ])
 
-ADDONS_DIR = Path(__file__).parent.parent.parent / "addons"
-
 @app.route("/addons/<module>/<path:filename>")
 def serve_addon_file(module, filename):
+    core_path = CORE_ADDONS_DIR / module / "frontend" / filename
+    if core_path.exists():
+        return send_from_directory(CORE_ADDONS_DIR / module / "frontend", filename)
     return send_from_directory(ADDONS_DIR / module / "frontend", filename)
 
 

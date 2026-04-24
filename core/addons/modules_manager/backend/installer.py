@@ -13,7 +13,7 @@ from utils import singleton
 MAIN_BRANCH_NAME = "main"
 ADDONS_DIR = "addons"
 
-project_root = Path(__file__).parent.parent.parent.parent
+project_root = Path(__file__).parent.parent.parent.parent.parent
 
 @singleton
 class ModuleInstaller:
