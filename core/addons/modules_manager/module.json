@@ -2,7 +2,6 @@
   "name" : "Modules_manager",
   "core_module": true,
   "version" : "1.0.0",
-  "db_schema_path" : "",
   "frontend_path" : ".frontend/js/modules_manager.js",
   "dependencies" :[]
 }

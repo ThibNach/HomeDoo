@@ -6,8 +6,8 @@ from urllib.request import urlretrieve
 from pathlib import Path
 
 from database import database
-from .repository import modules_repository
-from .utils import load_manifest
+from modules.repository import modules_repository
+from modules.utils import load_manifest
 from utils import singleton
 
 MAIN_BRANCH_NAME = "main"
