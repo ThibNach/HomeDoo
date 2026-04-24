@@ -10,6 +10,9 @@ class ModulesRepository:
 
     def get_by_name(self, name):
         return database.fetch_where(MODULES_TABLE_NAME, {"name": name})
+    
+    def get_by_source_url(self, source_url):
+        return database.fetch_where(MODULES_TABLE_NAME, {"source_url" : source_url})
 
     def add_module(self, name, version, source_url, status="installed"):
         data = {"name": name, "version": version, "source_url": source_url, "status": status}

@@ -121,6 +121,12 @@ class Database:
                         connection.rollback()
                         raise Exception(f"Error : {e}")
 
+    def drop_table_if_exists(self, table_name):
+        query = sql.SQL("DROP TABLE IF EXISTS {}").format(
+            sql.Identifier(table_name)
+        )
+        self._execute_command(query)
+
     def _connect(self, db_name=None):
         try:
             return psycopg2.connect(

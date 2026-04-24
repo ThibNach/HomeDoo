@@ -7,6 +7,7 @@ from pathlib import Path
 from database import database
 from .repository import modules_repository
 from utils import singleton
+from .utils import load_manifest
 
 ADDONS_DIR = "addons"
 CORE_ADDONS_DIR = "core/addons"
@@ -26,13 +27,9 @@ class Registry:
             if directory.is_dir():
                 manifest = directory / MODULE_FILE
                 if manifest.exists():
-                    with open(manifest) as file:
-                        try:
-                            loaded_manifest = json.load(file)
-                            loaded_manifest["path"] = directory
-                            modules[loaded_manifest["name"]] = loaded_manifest
-                        except json.JSONDecodeError as e:
-                            raise ValueError(f"invalid Json file : {e}")
+                     loaded_manifest = load_manifest(directory)
+                     loaded_manifest["path"] = directory
+                     modules[loaded_manifest["name"]] = loaded_manifest
     
         return modules
 
