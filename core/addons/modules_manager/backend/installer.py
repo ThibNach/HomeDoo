@@ -69,7 +69,7 @@ class ModuleInstaller:
                     tables_schema = json.load(db_schema)
                     for table in tables_schema.get("tables", []):
                         database.drop_table_if_exists(f"{module_name.lower()}_{table['name']}")
-
+        
         if config.ENVIRONMENT == "development" and self._is_submodule(module_name):
             self._uninstall_submodule(module_name)
         else:
@@ -115,7 +115,7 @@ class ModuleInstaller:
             return False
 
         with open(git_modules_file) as modules_file:
-            return f"{ADDONS_DIR}/{module_name}" in modules_file.read()
+            return f"{ADDONS_DIR}/{module_name.lower()}" in modules_file.read()
 
     def _uninstall_zip(self, module_name):
 
@@ -133,6 +133,10 @@ class ModuleInstaller:
         subprocess.run(
             ["git", "config", "-f", ".gitmodules", "--remove-section", f"submodule.{path}"],
             cwd=str(project_root), check=False
+        )
+        subprocess.run(
+            ["git", "add", ".gitmodules"],
+            cwd=str(project_root), check=True
         )
         subprocess.run(
             ["git", "rm", "-f", path],
