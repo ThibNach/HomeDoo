@@ -10,13 +10,13 @@ from config import config
 
 class Database:
 
-    def fetch_all(self, table_name):
+    def fetch_all(self, table_name, cursor=None):
         query = sql.SQL("SELECT * FROM {}").format(
             sql.Identifier(table_name)
         )
-        return self._execute_query(query)
+        return self._execute_query(query, cursor=cursor)
 
-    def fetch_where(self, table_name, params=None):
+    def fetch_where(self, table_name, params=None, cursor=None):
         conditions = sql.SQL(' AND ').join(
             sql.SQL("{} = {}").format(sql.Identifier(key), sql.Placeholder())
             for key in params.keys()
@@ -28,9 +28,9 @@ class Database:
             sql.Identifier(table_name),
             conditions
         )
-        return self._execute_query(query, values)
+        return self._execute_query(query, values, cursor)
 
-    def insert_item(self, table_name, table_data: dict):
+    def insert_item(self, table_name, table_data: dict, cursor=None, returning = None):
         fields = sql.SQL(', ').join(sql.Identifier(data) for data in table_data.keys())
         placeholders = sql.SQL(', ').join(sql.Placeholder() * len(table_data))
         values = list(table_data.values())
@@ -41,9 +41,14 @@ class Database:
             placeholders
         )
 
-        self._execute_command(query, values)
+        if returning:
+            query = query + sql.SQL(" RETURNING {}").format(sql.Identifier(returning))
+            return self._execute_query(query, values, cursor=cursor)
+        
+        self._execute_command(query, values, cursor=cursor)
 
-    def update_item(self, table_name, updates: dict, conditions: dict):
+
+    def update_item(self, table_name, updates: dict, conditions: dict, cursor=None):
         update = sql.SQL(', ').join(
             sql.SQL("{} = {}").format(
                 sql.Identifier(field),
@@ -61,9 +66,9 @@ class Database:
             update,
             where
         )
-        self._execute_command(query, update_values + where_values)
+        self._execute_command(query, update_values + where_values, cursor)
 
-    def delete_item(self, table_name, conditions: dict):
+    def delete_item(self, table_name, conditions: dict, cursor=None):
         where = sql.SQL(' AND ').join(
             sql.SQL("{} = {}").format(
                 sql.Identifier(key),
@@ -76,7 +81,7 @@ class Database:
             where
         )
 
-        self._execute_command(query, values)
+        self._execute_command(query, values, cursor)
 
     def create_db_if_not_exists(self):
         connection = self._connect("postgres")  # Cannot use with statement because create db can not be a transaction
@@ -109,7 +114,7 @@ class Database:
                                     references_sql = f"REFERENCES {ref['module']}_{ref['table']}({ref['column']})"
                                     if ref.get("on_delete"):
                                         references_sql += f" ON DELETE {ref['on_delete']}"
-                                
+
                                 columns.append(sql.SQL("{} {}").format(
                                     sql.Identifier(column["name"]),
                                     sql.SQL(f"{column['type']} {column['constraints']} {references_sql}")
@@ -132,6 +137,17 @@ class Database:
         )
         self._execute_command(query)
 
+    def execute_transaction(self, callback):
+        with self._connect() as connection:
+            try:
+                with connection.cursor() as cursor:
+                    result = callback(cursor)
+                connection.commit()
+                return result
+            except psycopg2.Error as e:
+                connection.rollback()
+                raise RuntimeError(f"transaction error : {e}")
+
     def _connect(self, db_name=None):
         try:
             return psycopg2.connect(
@@ -145,7 +161,11 @@ class Database:
         except OperationalError as e:
             raise ConnectionError(f"Failed to connect to database {db_name} : {e}")
 
-    def _execute_query(self, query, values=None):
+    def _execute_query(self, query, values=None, cursor=None):
+        if cursor is not None:
+            cursor.execute(query, values)
+            return cursor.fetchall()
+
         try:
             with self._connect() as connection:
                 with connection.cursor() as cursor:
@@ -154,7 +174,11 @@ class Database:
         except psycopg2.Error as e:
             raise (RuntimeError(f"Query execution failed on {query} : {e} "))
 
-    def _execute_command(self, query, values=None):
+    def _execute_command(self, query, values=None, cursor=None):
+        if cursor is not None:
+            cursor.execute(query, values)
+            return
+
         with self._connect() as connection:
             try:
                 with connection.cursor() as cursor:
