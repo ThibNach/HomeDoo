@@ -11,11 +11,12 @@ router = Blueprint("modules_manager", __name__)
 def install_module():
     data = request.get_json()
     url = data.get("url")
+    name = data.get("name")
 
     if not url:
         return jsonify({"success": False, "error": "Missing URL"}), 400
     try:
-        ModuleInstaller().install(url)
+        ModuleInstaller().install(url, name)
         return jsonify({"success": True, "message": "Module installed"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400

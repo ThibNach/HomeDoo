@@ -22,6 +22,7 @@ class Config:
         self.DB_PORT :str = _require_env_variable("DB_PORT")
         self.DB_USER :str = _require_env_variable("DB_USER")
         self.DB_PASSWORD :str = _require_env_variable("DB_PASSWORD")
+        self.ENVIRONMENT : str = _require_env_variable("ENVIRONMENT")
 
 
 config = Config()

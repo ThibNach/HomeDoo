@@ -1,7 +1,0 @@
-{
-  "name" : "Calendar",
-  "version" : "1.0.0",
-  "db_schema_path" : "./backend/tables_schema.json", 
-  "frontend_path" : ".frontend/js/calendar.js",
-  "dependencies" : ["Auth"]
-}

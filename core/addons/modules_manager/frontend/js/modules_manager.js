@@ -98,12 +98,13 @@ async function installModule() {
     await installFromUrl(url);
 }
 
-async function installFromUrl(url) {
+async function installFromUrl(url, name = null) {
     try {
+        const body = name ? {url,name} : {url};
         const response = await fetch(`${API_URL}/modules/install`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url })
+            body: JSON.stringify(body )
         });
         const data = await response.json();
 
@@ -175,6 +176,7 @@ async function loadCatalog() {
                 <button 
                     class="${isInstalled ? 'installed-btn' : 'catalog-install-btn'}" 
                     data-url="${module.url}"
+                    data-name="${module.name}"
                     ${isInstalled ? 'disabled' : ''}>
                     ${isInstalled ? 'Installed' : 'Install'}
                 </button>
@@ -183,7 +185,7 @@ async function loadCatalog() {
         });
 
         document.querySelectorAll(".catalog-install-btn").forEach(btn => {
-            btn.addEventListener("click", () => installFromUrl(btn.dataset.url));
+            btn.addEventListener("click", () => installFromUrl(btn.dataset.url, btn.dataset.name));
         });
     } catch (e) {
         document.getElementById("catalog-list").innerHTML =
