@@ -97,15 +97,15 @@ class ModuleInstaller:
 
     def _install_submodule(self, git_url, name):
 
-        destination = project_root / ADDONS_DIR / name.lower()
+        relative_path = f"{ADDONS_DIR}/{name.lower()}"
 
         subprocess.run(
-            ["git", "submodule", "add", git_url, str(destination)],
+            ["git", "submodule", "add", git_url, str(relative_path)],
             cwd=str(project_root),
             check=True
         )
 
-        return load_manifest(destination)
+        return load_manifest( project_root / relative_path)
 
     def _is_submodule(self, module_name):
 
