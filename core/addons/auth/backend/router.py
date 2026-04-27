@@ -49,4 +49,4 @@ def login():
 
 @router.route("/auth/users", methods=["GET"])
 def get_users():
-    return database.fetch_all("auth_users")
+    return jsonify(database.fetch_all("auth_users"))

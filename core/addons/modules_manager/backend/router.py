@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify
 from .installer import ModuleInstaller
+import urllib.request
+import json
 
+CATALOG_URL = "https://raw.githubusercontent.com/ThibNach/homedoo-catalog/main/catalog.json"
 router = Blueprint("modules_manager", __name__)
+
 
 @router.route("/modules/install", methods=["POST"])
 def install_module():
@@ -9,12 +13,13 @@ def install_module():
     url = data.get("url")
 
     if not url:
-        return jsonify({ "success" : False, "error" : "Missing URL"}), 400
+        return jsonify({"success": False, "error": "Missing URL"}), 400
     try:
         ModuleInstaller().install(url)
         return jsonify({"success": True, "message": "Module installed"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
+
 
 @router.route("/modules/uninstall", methods=["POST"])
 def uninstall_module():
@@ -28,3 +33,9 @@ def uninstall_module():
         return jsonify({"success": True, "message": "Module uninstalled"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
+
+
+@router.route("/modules/catalog")
+def get_modules_catalog():
+    response = urllib.request.urlopen(CATALOG_URL)
+    return jsonify(json.loads(response.read()))
