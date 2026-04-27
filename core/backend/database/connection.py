@@ -16,7 +16,6 @@ class Database:
         )
         return self._execute_query(query)
 
-
     def fetch_where(self, table_name, params=None):
         conditions = sql.SQL(' AND ').join(
             sql.SQL("{} = {}").format(sql.Identifier(key), sql.Placeholder())
@@ -67,16 +66,16 @@ class Database:
     def delete_item(self, table_name, conditions: dict):
         where = sql.SQL(' AND ').join(
             sql.SQL("{} = {}").format(
-                sql.Identifier(key)            ,
+                sql.Identifier(key),
                 sql.Placeholder())
-                for key in conditions.keys() )
+            for key in conditions.keys())
         values = list(conditions.values())
-            
+
         query = sql.SQL("DELETE FROM {} WHERE {}").format(
             sql.Identifier(table_name),
             where
         )
-        
+
         self._execute_command(query, values)
 
     def create_db_if_not_exists(self):
@@ -102,13 +101,19 @@ class Database:
                 with connection.cursor() as cursor:
                     try:
                         for table in schema["tables"]:
-                            columns = [
-                                sql.SQL("{} {}").format(
+                            columns = []
+                            for column in table["columns"]:
+                                references_sql = ""
+                                if column.get("references"):
+                                    ref = column["references"]
+                                    references_sql = f"REFERENCES {ref['module']}_{ref['table']}({ref['column']})"
+                                    if ref.get("on_delete"):
+                                        references_sql += f" ON DELETE {ref['on_delete']}"
+                                
+                                columns.append(sql.SQL("{} {}").format(
                                     sql.Identifier(column["name"]),
-                                    sql.SQL(f"{column['type']} {column['constraints']}")
-                                )
-                                for column in table["columns"]
-                            ]
+                                    sql.SQL(f"{column['type']} {column['constraints']} {references_sql}")
+                                ))
 
                             query = sql.SQL("CREATE TABLE IF NOT EXISTS {} ({})").format(
                                 sql.Identifier(f"{module_name.lower()}_{table["name"].lower()}"),
