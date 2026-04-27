@@ -131,6 +131,10 @@ class ModuleInstaller:
             cwd=str(project_root), check=True
         )
         subprocess.run(
+            ["git", "config", "-f", ".gitmodules", "--remove-section", f"submodule.{path}"],
+            cwd=str(project_root), check=False
+        )
+        subprocess.run(
             ["git", "rm", "-f", path],
             cwd=str(project_root), check=True
         )
