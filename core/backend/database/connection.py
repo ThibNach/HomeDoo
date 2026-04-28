@@ -30,7 +30,36 @@ class Database:
         )
         return self._execute_query(query, values, cursor)
 
-    def insert_item(self, table_name, table_data: dict, cursor=None, returning = None):
+    def fetch_join(self, table_1, table_2, column_1, column_2, conditions: dict, target='*', cursor=None):
+        where = sql.SQL(" AND ").join(
+            sql.SQL("{} = {}").format(
+                sql.Identifier(key), sql.Placeholder()
+            )
+            for key in conditions.keys()
+        )
+
+        values = list(conditions.values())
+
+        if target == "*":
+            target_sql = sql.SQL('*')
+        else:
+            target_sql = sql.SQL(", ").join(sql.SQL("{}.{}").format(
+                sql.Identifier(table), sql.Identifier(column))
+                                            for table, column in target
+                                            )
+
+        query = sql.SQL("SELECT {} FROM {} JOIN {} ON {}.{} = {}.{} WHERE {}").format(
+            target_sql,
+            sql.Identifier(table_1),
+            sql.Identifier(table_2),
+            sql.Identifier(table_1), sql.Identifier(column_1),
+            sql.Identifier(table_2), sql.Identifier(column_2),
+            where
+        )
+
+        return self._execute_query(query, values, cursor=cursor)
+
+    def insert_item(self, table_name, table_data: dict, cursor=None, returning=None):
         fields = sql.SQL(', ').join(sql.Identifier(data) for data in table_data.keys())
         placeholders = sql.SQL(', ').join(sql.Placeholder() * len(table_data))
         values = list(table_data.values())
@@ -44,9 +73,8 @@ class Database:
         if returning:
             query = query + sql.SQL(" RETURNING {}").format(sql.Identifier(returning))
             return self._execute_query(query, values, cursor=cursor)
-        
-        self._execute_command(query, values, cursor=cursor)
 
+        self._execute_command(query, values, cursor=cursor)
 
     def update_item(self, table_name, updates: dict, conditions: dict, cursor=None):
         update = sql.SQL(', ').join(

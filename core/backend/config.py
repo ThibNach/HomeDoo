@@ -23,6 +23,7 @@ class Config:
         self.DB_USER :str = _require_env_variable("DB_USER")
         self.DB_PASSWORD :str = _require_env_variable("DB_PASSWORD")
         self.ENVIRONMENT : str = _require_env_variable("ENVIRONMENT")
+        self.JWT_SECRET : str = _require_env_variable("JWT_SECRET")
 
 
 config = Config()

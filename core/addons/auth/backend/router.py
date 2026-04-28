@@ -1,9 +1,7 @@
-import bcrypt
-
 from flask import Blueprint, request, jsonify
 
+from .tokens.utils import login_required
 from core.addons.auth.backend.repository import auth_repository
-from core.backend import database, handle_error
 
 router = Blueprint("auth", __name__)
 
@@ -15,7 +13,6 @@ def register():
     if not data.get("name") or not data.get("email") or not data.get("password"):
         return jsonify({"success": False, "error": "Missing required fields"}), 400
 
-
     try:
         auth_repository.create_person_with_account(data.get("name"), data.get("email"), data.get("password"))
     except Exception as e:
@@ -23,27 +20,51 @@ def register():
     else:
         return jsonify({"success": True, "message": "User created"}), 201
 
+@router.route("/auth/create_person", methods=["POST"])
+@login_required
+def create_person():
+    data = request.get_json()
+
+    if not data.get("name"):
+        return jsonify({"success": False, "error": "Missing name to create person"}), 400
+
+    try:
+        auth_repository.create_person(data.get("name"))
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    else:
+        return jsonify({"success": True, "message": "Person created"}), 201
+
+@router.route("/auth/delete_person", methods=["POST"])
+@login_required
+def delete_person():
+    data = request.get_json()
+    person_id = data.get("id")
+    if not person_id:
+        return jsonify({"success": False, "error": "Missing id"}), 400
+
+    auth_repository.delete_person(person_id)
+    return jsonify({"success": True, "message": "Person deleted"})
+
 
 @router.route("/auth/login", methods=["POST"])
 def login():
     data = request.get_json()
 
-    if not data.get("username") or not data.get("password"):
-        return jsonify({"success ": False, "error": "Missing required fields"}), 400
+    if not data.get("password") or not data.get("email"):
+        return jsonify({"success": False, "error": "Missing required fields"}), 400
 
     try:
-        stored_user = database.fetch_where("auth_users", {"username": data.get("username")})
+        result = auth_repository.login(data.get("email"), data.get("password"))
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 400
+        return jsonify({"success": False, "error": str(e)}), 500
 
-    if len(stored_user) < 1 or not bcrypt.checkpw(data.get("password").encode("utf-8"),
-                                                  stored_user[0].get("password_hash").encode("utf-8")):
-        return jsonify({"success": False, "message": "Can't find user with this username and password association"})
+    if not result:
+        return jsonify({"success": False, "error": "No combination with email and password found"}), 400
 
-    return jsonify(
-        {"success": True, "message": f"Logged as {data.get("username")}"})  # TODO: real user loging and loading    
+    return jsonify({"success": True, "token": result["token"], "person": result["person"]})
 
-
-@router.route("/auth/users", methods=["GET"])
-def get_users():
-    return jsonify(database.fetch_all("auth_users"))
+@router.route("/auth/persons", methods=["GET"])
+@login_required
+def get_persons():
+    return jsonify(auth_repository.get_persons())
