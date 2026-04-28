@@ -3,5 +3,6 @@
   "core_module": true,
   "version" : "1.0.0",
   "frontend_path" : ".frontend/js/modules_manager.js",
+  "display_name": "Modules",
   "dependencies" :[]
 }

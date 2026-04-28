@@ -1,4 +1,6 @@
 const API_URL = "http://127.0.0.1:5000";
+import { serviceRegistry } from "http://127.0.0.1:3000/js/service_registry.js";
+
 
 export async function render() {
     
@@ -52,7 +54,10 @@ export async function render() {
 }
 
 async function loadModules() {
-    const response = await fetch(`${API_URL}/modules`);
+    const auth = serviceRegistry.get("auth");
+    const response = await fetch(`${API_URL}/modules`, {
+        headers: auth.authHeaders()
+    });
     const modules = await response.json();
     const installables = modules.filter(m => !m.core_module);
 
@@ -101,9 +106,10 @@ async function installModule() {
 async function installFromUrl(url, name = null) {
     try {
         const body = name ? {url,name} : {url};
+        const auth = serviceRegistry.get("auth");
         const response = await fetch(`${API_URL}/modules/install`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json" , ...auth.authHeaders() },
             body: JSON.stringify(body )
         });
         const data = await response.json();
@@ -124,9 +130,10 @@ async function uninstallModule(name) {
     if (!confirm(`Uninstall ${name}?`)) return;
 
     try {
+        const auth = serviceRegistry.get("auth");
         const response = await fetch(`${API_URL}/modules/uninstall`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...auth.authHeaders() },
             body: JSON.stringify({ name, keep_data: false })
         });
         const data = await response.json();
