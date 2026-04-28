@@ -34,7 +34,7 @@ class AuthRepository:
         database.insert_item("auth_persons", {"name": person_name})
 
     def delete_person(self, person_id):
-        database.delete_item("auth_persons", {"name": person_id})
+        database.delete_item("auth_persons", {"id": person_id})
 
     def login(self, email, password):
         result = database.fetch_join(

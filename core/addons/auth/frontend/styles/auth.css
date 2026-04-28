@@ -1,0 +1,112 @@
+.modules-manager {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.module-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.version {
+    color: #888;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #2c3e50;
+    color: white;
+}
+
+.uninstall-btn {
+    background: #e74c3c;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.modal, .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content, .overlay-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    min-width: 400px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 1rem 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.catalog-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.description {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.separator {
+    text-align: center;
+    margin: 1rem 0;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.installed-btn {
+    background: #95a5a6;
+    color: white;
+    cursor: not-allowed;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    opacity: 0.7;
+}

@@ -116,10 +116,10 @@ function renderRegisterScreen(onSuccess) {
         e.preventDefault();
         renderLoginScreen(onSuccess);
     });
-    const inputs = ["login-email", "login-password", "register-name"];
+    const inputs = ["register-email", "register-password", "register-name"];
     inputs.forEach(id => {
         document.getElementById(id).addEventListener("keydown", (e) => {
-            if (e.key === "Enter") handleLogin(onSuccess);
+            if (e.key === "Enter") handleRegister(onSuccess);
         });
     });
 }

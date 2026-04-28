@@ -5,6 +5,14 @@ const API_URL = "http://127.0.0.1:5000";
 export async function render() {
     const auth = serviceRegistry.get("auth");
 
+    if (!document.getElementById("persons-manager-css")) {
+        const link = document.createElement("link");
+        link.id = "persons-manager-css";
+        link.rel = "stylesheet";
+        link.href = `${API_URL}/addons/auth/styles/auth.css`;
+        document.head.appendChild(link);
+    }
+
     const app = document.getElementById("app");
     app.innerHTML = `
         <div class="persons-manager">
@@ -40,6 +48,7 @@ async function loadPersons(auth) {
         headers: auth.authHeaders()
     });
     const persons = await response.json();
+    const currentPerson = auth.getPerson();
 
     const list = document.getElementById("persons-list");
     list.innerHTML = "";
@@ -52,9 +61,10 @@ async function loadPersons(auth) {
     persons.forEach(person => {
         const item = document.createElement("div");
         item.className = "person-item";
+        const isCurrentUser = person.id === currentPerson.id;
         item.innerHTML = `
-            <span><strong>${person.name}</strong></span>
-            <button class="delete-btn" data-id="${person.id}">Delete</button>
+            <span><strong>${person.name}</strong>${isCurrentUser ? ' (you)' : ''}</span>
+            ${isCurrentUser ? '' : `<button class="delete-btn" data-id="${person.id}">Delete</button>`}
         `;
         list.appendChild(item);
     });
