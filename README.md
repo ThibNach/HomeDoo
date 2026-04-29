@@ -93,8 +93,6 @@ HomeDoo/
 
 ### Module Loading Flow
 
-### Module Loading Flow
-
 ```mermaid
 flowchart TD
     A[Core starts] --> B[Connect to PostgreSQL]
