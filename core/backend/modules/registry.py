@@ -29,12 +29,15 @@ class Registry:
                 if manifest.exists():
                      loaded_manifest = load_manifest(directory)
                      loaded_manifest["path"] = directory
-                     modules[loaded_manifest["name"]] = loaded_manifest
+                     modules[loaded_manifest["name"].lower()] = loaded_manifest
     
         return modules
 
     def sort_by_dependencies(self, manifests):
-        dependencies = {v["name"]: v.get("dependencies", []) for v in manifests.values()}
+        dependencies = {
+            v["name"].lower(): [d.lower() for d in v.get("dependencies", [])]
+            for v in manifests.values()
+        }
         degrees = {name: len(dep) for name, dep in dependencies.items()}
         queue = [name for name, count in degrees.items() if count == 0]
     
@@ -59,7 +62,7 @@ class Registry:
         gathered_addons = self.fetch_addons(project_root / CORE_ADDONS_DIR)
         gathered_addons.update(self.fetch_addons(project_root / ADDONS_DIR))
         sorted_addons = self.sort_by_dependencies(gathered_addons)
-        installed_addons_names = [module.get("name") for module in modules_repository.get_all_installed()]
+        installed_addons_names = [module.get("name").lower() for module in modules_repository.get_all_installed()]
         for addon in sorted_addons:
             manifest = gathered_addons.get(addon)
             if addon not in installed_addons_names and not manifest.get("core_module"):

@@ -15,8 +15,6 @@ The architecture is built around three principles:
 
 ## Tech Stack
 
-## Tech Stack
-
 | Layer | Technology | Version      |
 |---|---|--------------|
 | Backend language | Python | 3.12         |
