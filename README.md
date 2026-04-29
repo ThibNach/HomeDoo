@@ -40,6 +40,59 @@ architecture and Odoo-aligned patterns, which were the core objectives of this t
 
 ## Architecture
 
+### Architecture Overview
+
+```mermaid
+flowchart TB
+    subgraph Frontend["Frontend (port 3000)"]
+        UI[index.html]
+        Main[main.js]
+        EventBus[event_bus.js]
+        ServiceReg[service_registry.js]
+    end
+    
+    subgraph Backend["Backend (port 5000)"]
+        Flask[Flask app]
+        Registry[Module Registry]
+        DB[Database layer]
+        Installer[Module Installer]
+    end
+    
+    subgraph CoreModules["Core Modules (always loaded)"]
+        Auth[auth]
+        ModMgr[modules_manager]
+    end
+    
+    subgraph Addons["Addons (installable)"]
+        Calendar[calendar]
+        Other[...]
+    end
+    
+    subgraph External["External"]
+        Postgres[(PostgreSQL)]
+        Catalog[GitHub Catalog]
+        GitRepos[Module Repositories]
+    end
+    
+    UI --> Main
+    Main --> EventBus
+    Main --> ServiceReg
+    Main -->|HTTP/JSON| Flask
+    
+    Flask --> Registry
+    Flask --> DB
+    Flask --> Installer
+    
+    Registry --> CoreModules
+    Registry --> Addons
+    Installer -->|fetches| Catalog
+    Installer -->|clones/downloads| GitRepos
+    
+    CoreModules --> DB
+    Addons --> DB
+    DB --> Postgres
+```
+
 ### Project Structure
 
 ```bash
