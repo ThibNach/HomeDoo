@@ -16,6 +16,22 @@ bcrypt = "^5.0.0"
 pyjwt = "^2.12.1"
 
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.3"
+pytest-mock = "^3.15.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "../../core/tests",
+    "../../core/addons",
+    "../../addons"
+]
+python_files = "test_*.py"
+pythonpath = [
+    "../../core/backend",
+    "../../"
+]
