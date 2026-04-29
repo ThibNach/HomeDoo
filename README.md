@@ -15,20 +15,20 @@ The architecture is built around three principles:
 
 ## Tech Stack
 
-**Backend**
-- Python 3.12
-- Flask (HTTP server)
-- PostgreSQL (database)
-- psycopg2 (PostgreSQL driver)
-- bcrypt (password hashing)
-- PyJWT (token-based authentication)
-- Poetry (dependency management)
+## Tech Stack
 
-**Frontend**
-- Vanilla JavaScript (ES modules)
-- HTML / CSS
+| Layer | Technology | Version      |
+|---|---|--------------|
+| Backend language | Python | 3.12         |
+| HTTP server | Flask | 3.1.3        |
+| Database | PostgreSQL | 16           |
+| Database driver | psycopg2 | 2.9.11       |
+| Authentication | bcrypt + PyJWT | latest       |
+| Dependency management | Poetry | latest       |
+| Frontend | Vanilla JavaScript | ES2022       |
+| Markup & styling | HTML / CSS | HTML5 / CSS3 |
 
-No build step, no framework. The frontend uses native ES modules served directly by Python's `http.server`.
+No build step, no framework on the frontend. ES modules are served directly by Python's `http.server`.
 
 ## Note on AI Assistance
 
@@ -93,17 +93,29 @@ HomeDoo/
 
 ### Module Loading Flow
 
-1. Core starts and connects to PostgreSQL
-2. Core's own tables are created from `core/backend/database/schema.json`
-3. Module registry scans `core/addons/` and `addons/` for module manifests
-4. Manifests are sorted topologically based on declared dependencies
-5. For each module:
-    - Tables are created from its `db_schema.json` (with module name prefix)
-    - Backend `setup(app)` is called to register Flask routes
-6. HTTP server starts
-7. Frontend connects, loads `frontend_init` scripts of all modules
-8. Modules subscribe to events and register services
-9. The `app:starting` event is emitted; auth blocks rendering if not logged in
+### Module Loading Flow
+
+```mermaid
+flowchart TD
+    A[Core starts] --> B[Connect to PostgreSQL]
+    B --> C[Create core tables from schema.json]
+    C --> D[Scan core/addons/ and addons/ for manifests]
+    D --> E[Sort modules topologically by dependencies]
+    E --> F{For each module}
+    F --> G[Create tables from db_schema.json]
+    G --> H[Call backend setup app to register routes]
+    H --> F
+    F -->|All modules loaded| I[HTTP server starts]
+    I --> J[Frontend connects]
+    J --> K[Load frontend_init scripts]
+    K --> L[Modules subscribe to events & register services]
+    L --> M[Emit 'app:starting' event]
+    M --> N{Auth: logged in?}
+    N -->|No| O[Block & show login]
+    O --> P[After login: continue]
+    N -->|Yes| P[Render app]
+    P --> Q[App ready]
+```
 
 ### Module Installation
 
