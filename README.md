@@ -15,16 +15,17 @@ The architecture is built around three principles:
 
 ## Tech Stack
 
-| Layer | Technology | Version      |
-|---|---|--------------|
-| Backend language | Python | 3.12         |
-| HTTP server | Flask | 3.1.3        |
-| Database | PostgreSQL | 16           |
-| Database driver | psycopg2 | 2.9.11       |
-| Authentication | bcrypt + PyJWT | latest       |
-| Dependency management | Poetry | latest       |
-| Frontend | Vanilla JavaScript | ES2022       |
-| Markup & styling | HTML / CSS | HTML5 / CSS3 |
+| Layer                 | Technology         | Version      |
+|-----------------------|--------------------|--------------|
+| Backend language      | Python             | 3.12         |
+| HTTP server           | Flask              | 3.1.3        |
+| Database              | PostgreSQL         | 16           |
+| Database driver       | psycopg2           | 2.9.11       |
+| Authentication        | bcrypt + PyJWT     | latest       |
+| Dependency management | Poetry             | latest       |
+| Frontend              | Vanilla JavaScript | ES2022       |
+| Markup & styling      | HTML / CSS         | HTML5 / CSS3 |
+| Testing               | pytest             | 9.0.3        |
 
 No build step, no framework on the frontend. ES modules are served directly by Python's `http.server`.
 
@@ -298,7 +299,6 @@ Modules need to share helpers (e.g., authentication headers) without creating di
 - **HTTPS**: The setup runs on HTTP only. Production deployment would require TLS termination.
 
 ### Code Quality
-- **Tests**: The project has no automated tests. Unit tests on repositories and integration tests on the install/uninstall flow would be the next priority.
 - **Logging**: Errors are currently raised without structured logging. Integrating Python's `logging` module would improve observability.
 - **Frontend CSS organization**: Common styles (modals, buttons, list items) are duplicated across modules. Moving shared styles to the core would reduce duplication.
 

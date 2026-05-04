@@ -24,7 +24,6 @@ class Config:
         self.DB_PASSWORD :str = _require_env_variable("DB_PASSWORD")
         self.ENVIRONMENT : str = _require_env_variable("ENVIRONMENT")
         self.JWT_SECRET : str = _require_env_variable("JWT_SECRET")
-        self.DB_NAME_TEST = _require_env_variable("DB_NAME_TEST")
 
 
 config = Config()
