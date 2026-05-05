@@ -9,7 +9,7 @@ from config import config
 
 
 class Database:
-
+    #:TODO: Refactors query parsers to use .format() with named variables to gain readability
     def fetch_all(self, table_name, cursor=None):
         query = sql.SQL("SELECT * FROM {}").format(
             sql.Identifier(table_name)
@@ -175,6 +175,39 @@ class Database:
             except psycopg2.Error as e:
                 connection.rollback()
                 raise RuntimeError(f"transaction error : {e}")
+
+    def execute_raw_query(self, query, values=None, cursor=None):
+        """
+        Execute a SELECT query built with psycopg2.sql primitives and return rows.
+    
+        SECURITY: Identifiers must be wrapped with sql.Identifier(). Values must
+        be passed via the `values` argument (referenced as %s or sql.Placeholder()
+        in the query). Never interpolate user input directly into the SQL string.
+    
+        For transactional context, pass a `cursor` from execute_transaction().
+        """
+        if not isinstance(query, sql.Composable):
+            raise TypeError(
+                f"query must be a psycopg2 sql.Composable, got {type(query).__name__}"
+            )
+        return self._execute_query(query, values, cursor=cursor)
+
+
+    def execute_raw_command(self, query, values=None, cursor=None):
+        """
+        Execute an INSERT/UPDATE/DELETE/DDL command built with psycopg2.sql primitives.
+    
+        SECURITY: Same rules as execute_raw_query.
+    
+        Auto-commits when called without a cursor. When a cursor is passed, the
+        command joins the parent transaction and commit/rollback is the caller's
+        responsibility (typically via execute_transaction).
+        """
+        if not isinstance(query, sql.Composable):
+            raise TypeError(
+                f"query must be a psycopg2 sql.Composable, got {type(query).__name__}"
+            )
+        return self._execute_command(query, values, cursor=cursor)
 
     def _connect(self, db_name=None):
         try:
