@@ -134,7 +134,7 @@ async function uninstallModule(name) {
         const response = await fetch(`${API_URL}/modules/uninstall`, {
             method: "POST",
             headers: { "Content-Type": "application/json", ...auth.authHeaders() },
-            body: JSON.stringify({ name, keep_data: false })
+            body: JSON.stringify({ name, keep_data: true })
         });
         const data = await response.json();
 
