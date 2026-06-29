@@ -35,6 +35,7 @@ def serve_addon_file(module, filename):
 
 
 if __name__ == "__main__":
+    Path(ADDONS_DIR).mkdir(parents=True, exist_ok=True)
     database.create_db_if_not_exists()
     database.create_tables_if_not_exist(Path(__file__).parent / "database/schema.json","core")
     global loaded_addons
