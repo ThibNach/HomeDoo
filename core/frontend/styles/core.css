@@ -177,3 +177,13 @@ nav {
 .hidden {
     display: none !important;
 }
+
+.main-app-container{
+    display: block;
+    width: 80%;
+    height: 80%;
+    border : solid 1px black;
+    border-radius: 15px;
+    margin: 40px auto;
+    padding: 15px;
+}

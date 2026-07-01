@@ -23,7 +23,6 @@ async function loadFrontendInits() {
 }
 
 async function renderApp() {
-    document.getElementById("app").innerHTML = "";
 
     const auth = serviceRegistry.get("auth");
 
@@ -40,23 +39,8 @@ async function renderApp() {
         await renderApp();
     });
 
-    // Modules normaux dans la navbar
-    modules.forEach(module => {
-        if (module.core_module) return;
-        if (!module.frontend_path) return;
-
-        const link = document.createElement("a");
-        link.href = `#${module.name}`;
-        link.textContent = module.display_name || module.name;
-        link.addEventListener("click", async (e) => {
-            e.preventDefault();
-            await loadAndRender(module);
-        });
-        nav.appendChild(link);
-    });
-
     renderUserBar(auth, modules);
-    render();
+    renderHomePage(auth, modules);
 }
 
 function renderUserBar(auth, modules) {
@@ -117,17 +101,52 @@ function getFilename(path) {
     return path.split('/').pop();
 }
 
-export async function render() {
+export async function renderHomePage(auth, modules) {
     const homePage = document.getElementById("app");
+    homePage.innerHTML = ``;
+    
+
     const homeImage = document.createElement("img");
     homeImage.src = "./public/logo.png";
     homeImage.alt = "#";
-    homeImage.width=550;
-    homeImage.height=300;
-    homeImage.style.display="block";
-    homeImage.style.margin="0 auto";
+    homeImage.width = 550;
+    homeImage.height = 300;
+    homeImage.style.display = "block";
+    homeImage.style.margin = "0 auto";
 
     homePage.appendChild(homeImage);
+
+
+
+    const appDiv = document.createElement('div');
+    appDiv.classList.add("main-app-container");
+    
+
+    
+    const appList = document.createElement("ul");
+    
+    
+    modules.forEach(module => {
+        if (module.core_module) return;
+        if (!module.frontend_path) return;
+
+        const link = document.createElement("a");
+        link.href = `#${module.name}`;
+        link.textContent = module.display_name || module.name;
+        link.addEventListener("click", async (e) => {
+            e.preventDefault();
+            await loadAndRender(module);
+        });
+        appList.appendChild(link);
+    });
+    
+    if(appList.children.length === 0){
+        return;
+    }
+    
+    homePage.appendChild(appDiv);
+    
+    appDiv.appendChild(appList);
 }
 
 init();
