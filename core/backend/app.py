@@ -26,6 +26,7 @@ def get_modules():
         for m in loaded_addons
     ])
 
+
 @app.route("/addons/<module>/<path:filename>")
 def serve_addon_file(module, filename):
     core_path = CORE_ADDONS_DIR / module / "frontend" / filename

@@ -1,5 +1,5 @@
-import { eventBus } from "./event_bus.js";
-import { serviceRegistry } from "./service_registry.js";
+import {eventBus} from "./event_bus.js";
+import {serviceRegistry} from "./service_registry.js";
 
 const API_URL = "http://127.0.0.1:5000";
 
@@ -33,7 +33,12 @@ async function renderApp() {
     const modules = await response.json();
 
     const nav = document.getElementById("nav");
-    nav.innerHTML = "";
+    nav.innerHTML = "<img id='homelink' src='./public/logo.png' alt='#' width='50*1.8' height='50'>";
+    const homeLink = document.getElementById('homelink');
+    homeLink.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await renderApp();
+    });
 
     // Modules normaux dans la navbar
     modules.forEach(module => {
@@ -51,6 +56,7 @@ async function renderApp() {
     });
 
     renderUserBar(auth, modules);
+    render();
 }
 
 function renderUserBar(auth, modules) {
@@ -109,6 +115,19 @@ async function loadAndRender(module) {
 
 function getFilename(path) {
     return path.split('/').pop();
+}
+
+export async function render() {
+    const homePage = document.getElementById("app");
+    const homeImage = document.createElement("img");
+    homeImage.src = "./public/logo.png";
+    homeImage.alt = "#";
+    homeImage.width=550;
+    homeImage.height=300;
+    homeImage.style.display="block";
+    homeImage.style.margin="0 auto";
+
+    homePage.appendChild(homeImage);
 }
 
 init();
