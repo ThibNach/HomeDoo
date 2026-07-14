@@ -1,15 +1,18 @@
 from database import database
+from modules.installer_module import InstalledModule
 
 MODULES_TABLE_NAME = "core_installed_modules"
 
 
 class ModulesRepository:
 
-    def get_all_installed(self):
-        return database.fetch_all(MODULES_TABLE_NAME)
+    def get_all_installed(self) -> list[InstalledModule]:
+        rows = database.fetch_all(MODULES_TABLE_NAME)
+        return [InstalledModule.from_db_row(row) for row in rows]
 
-    def get_by_name(self, name):
-        return database.fetch_where(MODULES_TABLE_NAME, {"name": name})
+    def get_by_name(self, name) -> InstalledModule | None:
+        rows = database.fetch_where(MODULES_TABLE_NAME, {"name": name})
+        return InstalledModule.from_db_row(rows[0]) if rows else None
     
     def get_by_source_url(self, source_url):
         return database.fetch_where(MODULES_TABLE_NAME, {"source_url" : source_url})
