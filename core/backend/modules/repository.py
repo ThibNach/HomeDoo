@@ -1,5 +1,5 @@
 from database import database
-from modules.installer_module import InstalledModule
+from modules.installed_module import InstalledModule
 
 MODULES_TABLE_NAME = "core_installed_modules"
 
