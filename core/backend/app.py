@@ -21,7 +21,7 @@ def handle_error(e):
 
 @app.route("/modules", methods=["GET"])
 def get_modules():
-    return jsonify([module for module in loaded_addons])
+    return jsonify([module.to_json_dict() for module in loaded_addons])
 
 
 @app.route("/addons/<module>/<path:filename>")

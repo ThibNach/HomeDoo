@@ -12,6 +12,7 @@ from modules.utils import load_manifest
 from utils import singleton
 
 from core.backend import config
+from core.backend.modules.manifest import Manifest
 
 MAIN_BRANCH_NAME = "main"
 ADDONS_DIR = "addons"
@@ -37,8 +38,8 @@ class ModuleInstaller:
         # and an /modules/enable endpoint to handle the transition.
 
         modules_repository.add_module(
-            name=manifest["name"],
-            version=manifest.get("version", "1.0.0"),
+            name=manifest.name,
+            version=manifest.version,
             source_url=git_url,
             status="enabled"
         )
@@ -47,22 +48,22 @@ class ModuleInstaller:
 
         loaded_addons = modules_repository.get_all_installed()
 
-        found = any(module_name.lower() == m["name"].lower() for m in loaded_addons)
+        found = any(module_name.lower() == module.name.lower() for module in loaded_addons)
 
         if not found:
             raise ValueError(f"{module_name} not found in installed module, impossible to uninstall")
 
         for addon in loaded_addons:
-            path = project_root / ADDONS_DIR / addon["name"].lower()
+            path = project_root / ADDONS_DIR / addon.name.lower()
             manifest = load_manifest(path)
-            if module_name.lower() in manifest.get("dependencies", []):
-                raise RuntimeError(f"{module_name} is a dependency of {manifest.get('name')}, impossible to uninstall")
+            if module_name.lower() in manifest.dependencies:
+                raise RuntimeError(f"{module_name} is a dependency of {manifest.name}, impossible to uninstall")
 
         path_to_remove = project_root / ADDONS_DIR / (module_name.lower())
 
         if not keep_data:
             manifest = load_manifest(path_to_remove)
-            db_schema_path = manifest["db_schema_path"]
+            db_schema_path = manifest.db_schema_path
 
             if db_schema_path:
                 with open(path_to_remove / db_schema_path) as db_schema:
@@ -89,7 +90,7 @@ class ModuleInstaller:
 
         extracted_path = project_root / ADDONS_DIR / root_dir
         manifest = load_manifest(extracted_path)
-        extracted_path.rename(project_root / ADDONS_DIR / manifest["name"].lower())
+        extracted_path.rename(project_root / ADDONS_DIR / manifest.name.lower())
 
         os.remove(zip_path)
 
